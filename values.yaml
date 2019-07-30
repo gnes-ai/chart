@@ -21,17 +21,16 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-frontend:
-  name: gnes_frontend
-  service_type: NodePort
-  replicaCount: 2
-  grpc_port: 8500
-  targetPort: 8500
-  port_out: 27000
+service:
+  name: gnes_rpc
+  type: NodePort
+  port: 8500
   nodePort: 30001
 
-
-
+frontend:
+  name: frontend
+  replicaCount: 2
+  port_out: 27000
 
 ingress:
   enabled: false

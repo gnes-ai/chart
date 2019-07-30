@@ -11,14 +11,14 @@ metadata:
   namespace: {{ .Release.Namespace }}
 
 spec:
-  type: {{ .Values.frontend.service_type }}
+  type: {{ .Values.service.type }}
   ports:
-    - name: grpc
-      port: {{ .Values.frontend.grpc_port }}
-      nodePort: {{ .Values.frontend.nodePort }}
-      targetPort: grpc-port
-    - name: grpc-out
-      port: {{ .Values.frontend.port_out }}
+    - port: {{ .Values.service.port }}
+      targetPort: grpc
+      {{- if contains "NodePort" .Values.service.type }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+    - port: {{ .Values.frontend.port_out }}
       targetPort: frontend-out
   selector:
     app: "{{ template "gnes.name" . }}"

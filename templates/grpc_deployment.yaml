@@ -36,7 +36,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: grpc-port
+            - name: grpc
               containerPort: 8500
             - name: frontend-out
               containerPort: {{ .Values.frontend.port_out }}
