@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "gnes.frontend.fullname" . }}
+  labels:
+    app: "{{ template "gnes.name" . }}"
+    chart: {{ template "gnes.chart" . }}
+    component: "frontend"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+  namespace: {{ .Release.Namespace }}
+
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "gnes.name" . }}
+      release: "{{ .Release.Name }}"
+      component: "frontend"
+  template:
+    metadata:
+      labels:
+        app: "{{ template "gnes.name" . }}"
+        chart: {{ template "gnes.chart" . }}
+        component: "frontend"
+        release: {{ .Release.Name | quote }}
+        heritage: {{ .Release.Service | quote }}
+
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      containers:
+        - name: gnes-frontend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: grpc-port
+              containerPort: 8500
+            - name: frontend-out
+              containerPort: {{ .Values.frontend.port_out }}
+          args:
+            - "frontend"
+            - "--port_in"
+            - "27100"
+            - "--port_out"
+            - "{{ .Values.frontend.port_out }}"
+            - "--socket_in"
+            - "SUB_CONNECT"
+            - "--socket_out"
+            - "PUSH_BIND"
+            - "--host_in"
+            - "outcome-router"
+            - "--grpc_port"
+            - "8500"
+
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

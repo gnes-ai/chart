@@ -2,20 +2,36 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
-
 image:
-  repository: nginx
-  tag: stable
-  pullPolicy: IfNotPresent
+  repository: gnes/gnes
+  tag: latest
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: Always
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ##
+  # pullSecrets:
+  #   - myRegistryKeySecretName
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-service:
-  type: ClusterIP
-  port: 80
+frontend:
+  name: gnes_frontend
+  service_type: NodePort
+  replicaCount: 2
+  grpc_port: 8500
+  targetPort: 8500
+  port_out: 27000
+  nodePort: 30001
+
+
+
 
 ingress:
   enabled: false
